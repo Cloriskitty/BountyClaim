@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BountyClaim — Get paid for your open source work</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', monospace;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .container { max-width: 560px; width: 100%; }
+    .logo {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #00ff88;
+      margin-bottom: 0.5rem;
+      letter-spacing: -1px;
+    }
+    .tagline { color: #666; margin-bottom: 2.5rem; font-size: 0.9rem; }
+    .card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 2rem;
+    }
+    .hint {
+      background: #0a1a10;
+      border: 1px solid #1a3a20;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+      color: #559966;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    .hint code {
+      color: #00ff88;
+      background: #001a0d;
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+    }
+    label {
+      display: block;
+      font-size: 0.75rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.4rem;
+    }
+    input {
+      width: 100%;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      color: #e0e0e0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      margin-bottom: 1.25rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus { border-color: #00ff88; }
+    button {
+      width: 100%;
+      background: #00ff88;
+      color: #0a0a0a;
+      border: none;
+      border-radius: 6px;
+      padding: 0.9rem;
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.85; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .result {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      display: none;
+      white-space: pre-wrap;
+    }
+    .result.success { background: #001a0d; border: 1px solid #00ff88; color: #00ff88; }
+    .result.error { background: #1a0000; border: 1px solid #ff4444; color: #ff4444; }
+    .powered { text-align: center; margin-top: 1.5rem; font-size: 0.75rem; color: #444; }
+    .powered span { color: #666; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">💰 BountyClaim</div>
+    <div class="tagline">PR merged? Claim your USDC. No bank. No borders. No waiting.</div>
+
+    <div class="card">
+      <div class="hint">
+        Before claiming, comment on your PR:<br>
+        <code>@bountyclaim 0xYourWalletAddress</code><br>
+        Only the PR author's comment is accepted.
+      </div>
+
+      <label>GitHub PR URL</label>
+      <input type="text" id="prUrl" placeholder="https://github.com/owner/repo/pull/42" />
+
+      <label>Bounty Amount (USDC)</label>
+      <input type="number" id="amount" value="10" min="0.01" step="0.01" />
+
+      <button id="claimBtn" onclick="claim()">Claim Bounty →</button>
+
+      <div class="result" id="result"></div>
+    </div>
+
+    <div class="powered">Powered by <span>OnchainOS x402</span> · Built on Base</div>
+  </div>
+
+  <script>
+    async function claim() {
+      const prUrl = document.getElementById('prUrl').value.trim();
+      const amount = parseFloat(document.getElementById('amount').value);
+      const btn = document.getElementById('claimBtn');
+
+      if (!prUrl) {
+        showResult('error', 'Please enter a PR URL.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Verifying PR...';
+
+      try {
+        const resp = await fetch('/api/claim', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pr_url: prUrl, amount }),
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+          const w = data.wallet;
+          showResult('success',
+            `✅ PR verified: "${data.pr_info.title}"\n` +
+            `👤 Author: @${data.pr_info.author}\n` +
+            `🔐 Wallet from PR comment: ${w.slice(0,6)}...${w.slice(-4)}\n` +
+            `💸 ${amount} USDC sent\n` +
+            `🔗 TX: ${data.payment.tx_hash || 'processing...'}`
+          );
+        } else {
+          showResult('error', `❌ ${data.error || 'Something went wrong'}`);
+        }
+      } catch (e) {
+        showResult('error', '❌ Network error. Is the server running?');
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Claim Bounty →';
+    }
+
+    function showResult(type, msg) {
+      const el = document.getElementById('result');
+      el.className = `result ${type}`;
+      el.style.display = 'block';
+      el.textContent = msg;
+    }
+  </script>
+</body>
+</html>
