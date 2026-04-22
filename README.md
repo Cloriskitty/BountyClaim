@@ -2,7 +2,6 @@
 
 > Open-source contribution → verified → USDC in your wallet. Instantly.
 
-Built for the OKX Onchain OS internal hackathon.
 
 ## The Problem
 
@@ -47,4 +46,3 @@ python main.py
 - GitHub REST API
 - Base Sepolia testnet
 
-- test1 
