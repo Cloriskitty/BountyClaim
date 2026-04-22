@@ -5,10 +5,16 @@
 
 ## The Problem
 
-Open-source bounty platforms today rely on manual review at every step — maintainers
-verify completion by hand, hunters chase payment over email or Discord, and transfers
-go through PayPal or bank wires that take days, charge 5–10% in fees, and often get
-blocked entirely. The work is done. The settlement layer is broken.
+Open-source bounty tasks range from a small doc fix to a $5,000 smart contract audit.
+What they all have in common: after the PR gets merged, payment stalls.
+
+Platforms today rely on manual review at every step — maintainers verify completion
+by hand, hunters chase payment over email or Discord, and transfers go through PayPal
+or bank wires that take days, charge 5–10% in fees, and often get blocked entirely.
+
+The higher the bounty, the worse the pain. A hunter who just spent a week finding a
+critical security vulnerability shouldn't have to spend another week chasing a wire
+transfer. The work is done. The settlement layer is broken.
 
 ## The Solution
 
