@@ -35,7 +35,6 @@ cp .env.example .env
 python main.py
 ```
 
-Open http://localhost:5000
 
 ## Demo
 
@@ -47,3 +46,5 @@ Open http://localhost:5000
 - OnchainOS x402 Payment API
 - GitHub REST API
 - Base Sepolia testnet
+
+- test1 
