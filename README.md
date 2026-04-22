@@ -5,44 +5,73 @@
 
 ## The Problem
 
-Bounty hunters in Nigeria, Pakistan, and LatAm complete GitHub tasks and get stuck
-waiting days for PayPal transfers that may be blocked or eaten by fees.
-The contribution is done. The execution layer is broken.
+Open-source bounty platforms today rely on manual review at every step — maintainers
+verify completion by hand, hunters chase payment over email or Discord, and transfers
+go through PayPal or bank wires that take days, charge 5–10% in fees, and often get
+blocked entirely. The work is done. The settlement layer is broken.
 
 ## The Solution
 
 BountyClaim automates the last mile of open-source bounty settlement:
 
-1. Paste your merged PR link
-2. Agent verifies it's merged via GitHub API
-3. OnchainOS x402 sends USDC to your wallet
-4. Done in < 30 seconds. No bank needed.
+1. PR author comments `@bountyclaim 0xYourWallet` on their merged PR
+2. Agent verifies PR is merged via GitHub API
+3. Agent reads wallet address — only accepts comments from the PR author
+4. OKX Onchain OS + Base sends USDC to the verified wallet
+5. Done in < 30 seconds. No bank needed.
+
+## How to Claim
+
+As the PR author, comment on your merged PR:
+```
+@bountyclaim 0xYourWalletAddress
+```
+Then submit the PR link at the BountyClaim interface. The agent verifies your
+identity from your own comment — no one else can claim on your behalf.
 
 ## Onchain OS Integration
 
-Uses **OnchainOS x402 Payments** — the core capability for autonomous agent payments.
-Settlement on Base Sepolia (testnet) / Base Mainnet.
+- **OKX sign-info API** — fetches gas parameters and nonce from Onchain OS
+- **Local signing** — transaction signed with wallet private key
+- **Base mainnet** — USDC settlement on Base
+- **Roadmap** — X Layer support and OKX native wallet integration planned
 
 ## Setup
 
 ```bash
-git clone https://github.com/yourusername/bountyclaim
-cd bountyclaim
+git clone https://github.com/Cloriskitty/BountyClaim
+cd BountyClaim
 pip install -r requirements.txt
-cp .env.example .env
-# Fill in your OKX API keys in .env
+# Create .env with the following:
+# OKX_API_KEY=
+# OKX_SECRET_KEY=
+# OKX_PASSPHRASE=
+# OK_PROJECT_ID=
+# GITHUB_TOKEN=
+# PRIVATE_KEY=
 python main.py
 ```
 
+Open http://localhost:5001
 
 ## Demo
 
 [Link to demo video]
 
+## Known Limitations & Roadmap
+
+| Issue | Status | Plan |
+|---|---|---|
+| Duplicate claims — same PR can be claimed multiple times | Known | Add DB to record paid PRs |
+| Comment can be edited after payment | Known | Lock on first valid comment |
+| Private key in .env | Dev only | HSM / KMS for production |
+| OKX native wallet | Blocked (region/MPC setup) | Contact OKX team to unlock |
+| X Layer support | Not yet | Next integration target |
+
 ## Built With
 
 - Python + Flask
-- OnchainOS x402 Payment API
+- OKX Onchain OS API (sign-info)
 - GitHub REST API
-- Base Sepolia testnet
-
+- Base mainnet (USDC)
+- web3.py
