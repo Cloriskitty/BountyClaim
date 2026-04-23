@@ -55,7 +55,7 @@
       letter-spacing: 1px;
       margin-bottom: 0.4rem;
     }
-    input {
+    input, select {
       width: 100%;
       background: #0a0a0a;
       border: 1px solid #333;
@@ -68,7 +68,7 @@
       outline: none;
       transition: border-color 0.2s;
     }
-    input:focus { border-color: #00ff88; }
+    input:focus, select:focus { border-color: #00ff88; }
     button {
       width: 100%;
       background: #00ff88;
@@ -117,18 +117,25 @@
       <label>Bounty Amount (USDC)</label>
       <input type="number" id="amount" value="10" min="0.01" step="0.01" />
 
+      <label>Network</label>
+      <select id="chain">
+        <option value="base">Base (USDC)</option>
+        <option value="xlayer">X Layer (USDC)</option>
+      </select>
+
       <button id="claimBtn" onclick="claim()">Claim Bounty →</button>
 
       <div class="result" id="result"></div>
     </div>
 
-    <div class="powered">Powered by <span>OnchainOS x402</span> · Built on Base</div>
+    <div class="powered">Powered by <span>OnchainOS x402</span> · Base & X Layer</div>
   </div>
 
   <script>
     async function claim() {
       const prUrl = document.getElementById('prUrl').value.trim();
       const amount = parseFloat(document.getElementById('amount').value);
+      const chain = document.getElementById('chain').value;
       const btn = document.getElementById('claimBtn');
 
       if (!prUrl) {
@@ -143,7 +150,7 @@
         const resp = await fetch('/api/claim', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pr_url: prUrl, amount }),
+          body: JSON.stringify({ pr_url: prUrl, amount, chain }),
         });
         const data = await resp.json();
 
@@ -153,8 +160,9 @@
             `✅ PR verified: "${data.pr_info.title}"\n` +
             `👤 Author: @${data.pr_info.author}\n` +
             `🔐 Wallet from PR comment: ${w.slice(0,6)}...${w.slice(-4)}\n` +
-            `💸 ${amount} USDC sent\n` +
-            `🔗 TX: ${data.payment.tx_hash || 'processing...'}`
+            `💸 ${amount} USDC sent on ${data.payment.chain}\n` +
+            `🔗 TX: ${data.payment.tx_hash || 'processing...'}\n` +
+            `🌐 ${data.payment.explorer || ''}`
           );
         } else {
           showResult('error', `❌ ${data.error || 'Something went wrong'}`);

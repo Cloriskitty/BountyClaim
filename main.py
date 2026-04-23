@@ -13,6 +13,7 @@ def claim():
     data = request.json
     pr_url = data.get("pr_url", "").strip()
     amount = float(data.get("amount", 10.0))
+    chain = data.get("chain", "base")
 
     if not pr_url:
         return jsonify({"success": False, "error": "Missing PR URL"}), 400
@@ -42,7 +43,7 @@ def claim():
 
     # Step 3: Send payment
     memo = f"Bounty for {pr_result['repo']}#{pr_result['pr_number']} by @{pr_result['author']}"
-    pay_result = send_usdc_payment(wallet_address, amount, memo)
+    pay_result = send_usdc_payment(wallet_address, amount, memo, chain)
 
     return jsonify({
         "success": pay_result["success"],
